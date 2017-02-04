@@ -1,9 +1,7 @@
-from IPython import get_ipython
 import pandas as p
 from matplotlib import pyplot as plt
 import seaborn as sns
-
-get_ipython().run_line_magic('pylab', 'inline')
+import math
 
 data = p.read_csv('./speeddating.csv', encoding='ISO-8859-1')
 print("sup")
@@ -18,7 +16,7 @@ mut_matches = set()
 field_codes = {}
 
 # Dictionary for looking up the name associated with a field codes
-fields = {
+field_key = {
 	1: "Law",
 	2: "Math",
 	3: "Social Science, Psychology",
@@ -39,9 +37,8 @@ fields = {
 	18: "Other"
 }
 
-#print([x, y, z in data[['iid', 'pid', 'match']] if data['match'] == 1 and data['dec_o'] == 1])
 for index, row in data.iterrows():
-	if (row['match'] == 1 and row['dec_o'] == 1) and ('iid' in row and 'pid' in row and 'field_cd' in row):
+	if (row['match'] == 1 and row['dec_o'] == 1) and ('iid' in row and 'pid' in row and 'field_cd' in row and not math.isnan(row['field_cd'])):
 
 		# Cast ids as ints
 		row['iid'] = int(row['iid'])
@@ -56,22 +53,26 @@ for index, row in data.iterrows():
 
 		# Store field code if it is not already stored
 		if row['iid'] not in field_codes:
-			field_codes[row['iid']] = row['field_cd']
+			field_codes[row['iid']] = int(row['field_cd'])
 		if row['pid'] not in field_codes:
-			field_codes[row['pid']] = row['field_cd']
+			field_codes[row['pid']] = int(row['field_cd'])
 
 
-xid, yid, xfield, yfield = []
+xid, yid, xfield, yfield = [], [], [], []
 
 # Populate lists to create a new dataframe
+i = 0
 for row in mut_matches:
+	#print(row, field_key[field_codes[row[0]]], '#', field_key[field_codes[row[1]]])
 	xid.append(row[0])
 	yid.append(row[1])
-	xfield.append(fields[row[0]])
-	xfield.append(fields[row[1]])
+	xfield.append(field_key[field_codes[row[0]]])
+	yfield.append(field_key[field_codes[row[1]]])
 
-plot_data = pd.DataFrame({'xid': xid, 'yid': yid, 'xfield': xfield, 'yfield': yfield})
-plot_data.plot(kind='bar', stacked=True)
+#print(len(xid), len(yid), len(xfield), len(y)
+
+plot_data = p.DataFrame({'xid': xid, 'yid': yid, 'xfield': xfield, 'yfield': yfield})
+#plot_data.plot(kind='bar', stacked=True)
 
 #temp = [x for x in
 print("after")
